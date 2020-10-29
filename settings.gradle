@@ -1,2 +1,5 @@
 rootProject.name = 'JavaThreeHomework'
+include 'NetworkServer'
+include 'NetworkClient'
+include 'NetworkClientServer'
 

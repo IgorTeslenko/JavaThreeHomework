@@ -29,7 +29,6 @@ public class ViewController implements Controller {
 
     @FXML
     public void initialize() {
-        userList.setItems(FXCollections.observableArrayList(NetworkChatClient.USERS_TEST_DATA));
         sendButton.setOnAction(event -> sendMessage());
         textField.setOnAction(event -> sendMessage());
 
@@ -57,7 +56,7 @@ public class ViewController implements Controller {
 
     private void sendMessage() {
         String message = textField.getText();
-        appendMessage("Я: " + message);
+        appendMessage("You: " + message);
         textField.clear();
 
         try {

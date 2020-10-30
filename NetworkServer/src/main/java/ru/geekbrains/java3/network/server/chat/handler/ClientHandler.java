@@ -5,6 +5,7 @@ import ru.geekbrains.java3.network.clientserver.CommandType;
 import ru.geekbrains.java3.network.clientserver.commands.AuthCommandData;
 import ru.geekbrains.java3.network.clientserver.commands.PrivateMessageCommandData;
 import ru.geekbrains.java3.network.clientserver.commands.PublicMessageCommandData;
+import ru.geekbrains.java3.network.server.chat.DBConnect;
 import ru.geekbrains.java3.network.server.chat.MyServer;
 
 import java.io.IOException;
@@ -114,7 +115,7 @@ public class ClientHandler {
         AuthCommandData cmdData = (AuthCommandData) command.getData();
         String login = cmdData.getLogin();
         String password = cmdData.getPassword();
-        this.username = myServer.getAuthService().getUsernameByLoginAndPassword(login, password);
+        this.username = DBConnect.getUsername(login, password);
         if (username != null) {
             if (myServer.isUsernameAlreadyTaken(username)) {
                 sendMessage(Command.authErrorCommand("Username already taken. Please choose another one."));

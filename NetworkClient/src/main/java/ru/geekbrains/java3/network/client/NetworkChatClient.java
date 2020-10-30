@@ -13,12 +13,9 @@ import ru.geekbrains.java3.network.client.controllers.ViewController;
 import ru.geekbrains.java3.network.client.models.Network;
 
 import java.io.IOException;
-import java.util.List;
 
 
 public class NetworkChatClient extends Application {
-
-    public static final List<String> USERS_TEST_DATA = List.of("Oleg", "Alexey", "Peter");
 
     private Stage primaryStage;
     private Stage authDialogStage;

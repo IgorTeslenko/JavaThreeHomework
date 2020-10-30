@@ -7,7 +7,8 @@ import javafx.scene.input.MouseEvent;
 import ru.geekbrains.java3.network.client.NetworkChatClient;
 import ru.geekbrains.java3.network.client.models.Network;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ViewController implements Controller {
             cell.textProperty().bind(cell.itemProperty());
             cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
                 userList.requestFocus();
-                if (! cell.isEmpty()) {
+                if (!cell.isEmpty()) {
                     int index = cell.getIndex();
                     if (selectionModel.getSelectedIndices().contains(index)) {
                         selectionModel.clearSelection(index);
@@ -50,8 +51,10 @@ public class ViewController implements Controller {
                     event.consume();
                 }
             });
-            return cell ;
+            return cell;
         });
+
+        loadHistory();
     }
 
     private void sendMessage() {
@@ -62,8 +65,7 @@ public class ViewController implements Controller {
         try {
             if (selectedRecipient != null) {
                 network.sendPrivateMessage(message, selectedRecipient);
-            }
-            else {
+            } else {
                 network.sendMessage(message);
             }
         } catch (IOException e) {
@@ -77,14 +79,43 @@ public class ViewController implements Controller {
         this.network = network;
     }
 
+    public void loadHistory() {
+        StringBuilder sb = new StringBuilder();
+        File historyFile = new File("NetworkClient/src/main/resources/history.txt");
+        try {
+            historyFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (
+                BufferedInputStream in = new BufferedInputStream(new FileInputStream(historyFile));
+                InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8)
+        ) {
+            int x;
+            while (true) {
+                x = reader.read();
+                if (x == -1) {
+                    break;
+                } else {
+                    sb.append((char) x);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("No messages in history");
+            ;
+        }
+        chatHistory.appendText(sb.toString());
+    }
+
     @Override
     public void appendMessage(String message) {
         String timestamp = DateFormat.getInstance().format(new Date());
-        chatHistory.appendText(timestamp);
-        chatHistory.appendText(System.lineSeparator());
-        chatHistory.appendText(message);
-        chatHistory.appendText(System.lineSeparator());
-        chatHistory.appendText(System.lineSeparator());
+        String sb = timestamp +
+                System.lineSeparator() +
+                message +
+                System.lineSeparator() +
+                System.lineSeparator();
+        chatHistory.appendText(sb);
     }
 
     public void updateUserList(List<String> users) {

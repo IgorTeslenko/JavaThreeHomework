@@ -8,11 +8,12 @@ import ru.geekbrains.java3.network.clientserver.commands.PublicMessageCommandDat
 import ru.geekbrains.java3.network.server.chat.DBConnect;
 import ru.geekbrains.java3.network.server.chat.MyServer;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -155,6 +156,7 @@ public class ClientHandler {
                     String sender = data.getSender();
                     String message = data.getMessage();
                     myServer.broadcastMessage(this, Command.messageInfoCommand(message, sender));
+                    writeMessageHistory(String.format("%s: %s", sender, message));
                     break;
                 }
                 default:
@@ -170,5 +172,27 @@ public class ClientHandler {
 
     public void sendMessage(Command command) throws IOException {
         outputStream.writeObject(command);
+    }
+
+    private void writeMessageHistory(String message) {
+        File historyFile = new File("NetworkClient/src/main/resources/history.txt");
+        try {
+            historyFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String timestamp = DateFormat.getInstance().format(new Date());
+        String fullMessage = timestamp +
+                System.lineSeparator() +
+                message +
+                System.lineSeparator() +
+                System.lineSeparator();
+        try (
+                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(historyFile, true), StandardCharsets.UTF_8);
+        ) {
+            writer.append(fullMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

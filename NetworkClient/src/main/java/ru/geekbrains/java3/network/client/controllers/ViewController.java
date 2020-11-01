@@ -9,6 +9,8 @@ import ru.geekbrains.java3.network.client.models.Network;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -80,42 +82,28 @@ public class ViewController implements Controller {
     }
 
     public void loadHistory() {
-        StringBuilder sb = new StringBuilder();
-        File historyFile = new File("NetworkClient/src/main/resources/history.txt");
         try {
-            historyFile.createNewFile();
+            if (!Files.exists(Paths.get("NetworkClient/src/main/resources/history.txt"))) {
+                Files.createFile(Paths.get("NetworkClient/src/main/resources/history.txt"));
+            }
+            List<String> lines = Files.readAllLines(Paths.get("NetworkClient/src/main/resources/history.txt"), StandardCharsets.UTF_8);
+            String collect = String.join("\n", lines);
+            chatHistory.appendText(collect);
+            chatHistory.appendText("\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try (
-                BufferedInputStream in = new BufferedInputStream(new FileInputStream(historyFile));
-                InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8)
-        ) {
-            int x;
-            while (true) {
-                x = reader.read();
-                if (x == -1) {
-                    break;
-                } else {
-                    sb.append((char) x);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("No messages in history");
-            ;
-        }
-        chatHistory.appendText(sb.toString());
     }
 
     @Override
     public void appendMessage(String message) {
         String timestamp = DateFormat.getInstance().format(new Date());
-        String sb = timestamp +
+        String formattedMessage = timestamp +
                 System.lineSeparator() +
                 message +
                 System.lineSeparator() +
                 System.lineSeparator();
-        chatHistory.appendText(sb);
+        chatHistory.appendText(formattedMessage);
     }
 
     public void updateUserList(List<String> users) {

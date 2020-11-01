@@ -12,6 +12,10 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Timer;
@@ -28,6 +32,8 @@ public class ClientHandler {
     private ObjectOutputStream outputStream;
 
     private String username;
+
+    private final Path historyFile = Paths.get("NetworkClient/src/main/resources/history.txt");
 
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.myServer = myServer;
@@ -175,22 +181,17 @@ public class ClientHandler {
     }
 
     private void writeMessageHistory(String message) {
-        File historyFile = new File("NetworkClient/src/main/resources/history.txt");
-        try {
-            historyFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         String timestamp = DateFormat.getInstance().format(new Date());
         String fullMessage = timestamp +
                 System.lineSeparator() +
                 message +
                 System.lineSeparator() +
                 System.lineSeparator();
-        try (
-                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(historyFile, true), StandardCharsets.UTF_8);
-        ) {
-            writer.append(fullMessage);
+        try {
+            if (!Files.exists(historyFile)) {
+                Files.createFile(historyFile);
+            }
+            Files.writeString(historyFile, fullMessage, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -10,6 +10,7 @@ import ru.geekbrains.java3.network.client.models.Network;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.Date;
@@ -29,6 +30,8 @@ public class ViewController implements Controller {
     private Network network;
 
     private String selectedRecipient;
+
+    private final Path historyFile = Paths.get("NetworkClient/src/main/resources/history.txt");
 
     @FXML
     public void initialize() {
@@ -83,10 +86,10 @@ public class ViewController implements Controller {
 
     public void loadHistory() {
         try {
-            if (!Files.exists(Paths.get("NetworkClient/src/main/resources/history.txt"))) {
-                Files.createFile(Paths.get("NetworkClient/src/main/resources/history.txt"));
+            if (!Files.exists(historyFile)) {
+                Files.createFile(historyFile);
             }
-            List<String> lines = Files.readAllLines(Paths.get("NetworkClient/src/main/resources/history.txt"), StandardCharsets.UTF_8);
+            List<String> lines = Files.readAllLines(historyFile, StandardCharsets.UTF_8);
             String collect = String.join("\n", lines);
             chatHistory.appendText(collect);
             chatHistory.appendText("\n");

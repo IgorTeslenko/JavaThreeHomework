@@ -31,6 +31,7 @@ public class MyServer {
             e.printStackTrace();
         } finally {
             serverSocket.close();
+            DBConnect.disconnect();
         }
     }
 

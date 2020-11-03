@@ -68,45 +68,40 @@ public class Network {
                         continue;
                     }
                     switch (command.getType()) {
-                        case AUTH_OK: {
+                        case AUTH_OK -> {
                             AuthOkCommandData data = (AuthOkCommandData) command.getData();
                             setUsername(data.getUsername());
                             Platform.runLater(() -> controller.getClientApp().openChat());
                             return;
                         }
-                        case AUTH_ERROR: {
+                        case AUTH_ERROR -> {
                             AuthErrorCommandData data = (AuthErrorCommandData) command.getData();
                             Platform.runLater(() -> NetworkChatClient.showNetworkError("Server error", data.getErrorMessage()));
-                            break;
                         }
-                        case AUTH_TIMEOUT: {
+                        case AUTH_TIMEOUT -> {
                             AuthTimeoutCommandData data = (AuthTimeoutCommandData) command.getData();
                             Platform.runLater(() -> NetworkChatClient.showNetworkError("Server error", data.getAuthTimeoutMessage()));
                             getSocket().close();
-                            break;
                         }
-                        case INFO_MESSAGE: {
+                        case INFO_MESSAGE -> {
                             MessageInfoCommandData data = (MessageInfoCommandData) command.getData();
                             String message = data.getMessage();
                             String sender = data.getSender();
                             String formattedMessage = sender != null ? String.format("%s: %s", sender, message) : message;
                             Platform.runLater(() -> controller.appendMessage(formattedMessage));
-                            break;
                         }
-                        case UPDATE_USER_LIST: {
+                        case UPDATE_USER_LIST -> {
                             UpdateUserListCommandData data = (UpdateUserListCommandData) command.getData();
                             Platform.runLater(() -> {
                                 controller.updateUserList(data.getUserList());
                             });
-                            break;
                         }
-                        case ERROR:
+                        case ERROR -> {
                             ErrorCommandData data = (ErrorCommandData) command.getData();
                             String errorMessage = data.getErrorMessage();
                             Platform.runLater(() -> NetworkChatClient.showNetworkError("Server error", errorMessage));
-                            break;
-                        default:
-                            Platform.runLater(() -> NetworkChatClient.showNetworkError("Unknown command from server!", command.getType().toString()));
+                        }
+                        default -> Platform.runLater(() -> NetworkChatClient.showNetworkError("Unknown command from server!", command.getType().toString()));
                     }
                 }
             } catch (IOException e) {

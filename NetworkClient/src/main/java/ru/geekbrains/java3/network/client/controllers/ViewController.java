@@ -7,7 +7,11 @@ import javafx.scene.input.MouseEvent;
 import ru.geekbrains.java3.network.client.NetworkChatClient;
 import ru.geekbrains.java3.network.client.models.Network;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +31,8 @@ public class ViewController implements Controller {
 
     private String selectedRecipient;
 
+    private final Path historyFile = Paths.get("NetworkClient/src/main/resources/history.txt");
+
     @FXML
     public void initialize() {
         sendButton.setOnAction(event -> sendMessage());
@@ -38,7 +44,7 @@ public class ViewController implements Controller {
             cell.textProperty().bind(cell.itemProperty());
             cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
                 userList.requestFocus();
-                if (! cell.isEmpty()) {
+                if (!cell.isEmpty()) {
                     int index = cell.getIndex();
                     if (selectionModel.getSelectedIndices().contains(index)) {
                         selectionModel.clearSelection(index);
@@ -50,8 +56,10 @@ public class ViewController implements Controller {
                     event.consume();
                 }
             });
-            return cell ;
+            return cell;
         });
+
+        loadHistory();
     }
 
     private void sendMessage() {
@@ -62,8 +70,7 @@ public class ViewController implements Controller {
         try {
             if (selectedRecipient != null) {
                 network.sendPrivateMessage(message, selectedRecipient);
-            }
-            else {
+            } else {
                 network.sendMessage(message);
             }
         } catch (IOException e) {
@@ -77,14 +84,29 @@ public class ViewController implements Controller {
         this.network = network;
     }
 
+    public void loadHistory() {
+        try {
+            if (!Files.exists(historyFile)) {
+                Files.createFile(historyFile);
+            }
+            List<String> lines = Files.readAllLines(historyFile, StandardCharsets.UTF_8);
+            String collect = String.join("\n", lines);
+            chatHistory.appendText(collect);
+            chatHistory.appendText("\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void appendMessage(String message) {
         String timestamp = DateFormat.getInstance().format(new Date());
-        chatHistory.appendText(timestamp);
-        chatHistory.appendText(System.lineSeparator());
-        chatHistory.appendText(message);
-        chatHistory.appendText(System.lineSeparator());
-        chatHistory.appendText(System.lineSeparator());
+        String formattedMessage = timestamp +
+                System.lineSeparator() +
+                message +
+                System.lineSeparator() +
+                System.lineSeparator();
+        chatHistory.appendText(formattedMessage);
     }
 
     public void updateUserList(List<String> users) {

@@ -20,6 +20,9 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientHandler {
 
@@ -59,7 +62,15 @@ public class ClientHandler {
 
         closeConnectionOnTime.schedule(timerTask, CONNECTION_TIMEOUT);
 
-        new Thread(() -> {
+//      Если честно не очень понимаю смысл этого упражнения. То есть идея в том, что нам тут не обязательно это применять,
+//      но на чтобы поупражняться в запуске через Executor мы тут это делаем?
+//      Или я просто неправильно выполнил задание?
+
+        ExecutorService executorService;
+        CountDownLatch cdl = new CountDownLatch(1);
+        executorService = Executors.newFixedThreadPool(1);
+
+        Thread clientConnection = new Thread(() -> {
             try {
                 authentication();
                 if (username != null) {
@@ -80,9 +91,13 @@ public class ClientHandler {
                     closeConnection();
                 } catch (IOException e) {
                     System.err.println("Failed to close connection.");
+                    cdl.countDown();
                 }
             }
-        }).start();
+        });
+
+        executorService.execute(clientConnection);
+
     }
 
     public String getUsername() {

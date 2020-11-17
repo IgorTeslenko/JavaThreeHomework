@@ -62,10 +62,6 @@ public class ClientHandler {
 
         closeConnectionOnTime.schedule(timerTask, CONNECTION_TIMEOUT);
 
-//      Если честно не очень понимаю смысл этого упражнения. То есть идея в том, что нам тут не обязательно это применять,
-//      но на чтобы поупражняться в запуске через Executor мы тут это делаем?
-//      Или я просто неправильно выполнил задание?
-
         ExecutorService executorService;
         CountDownLatch cdl = new CountDownLatch(1);
         executorService = Executors.newFixedThreadPool(1);

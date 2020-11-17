@@ -1,0 +1,3 @@
+[INFO ] 2020-11-17 11:53:21.464 [main] MyServer - Server has been started.
+[INFO ] 2020-11-17 11:53:25.851 [main] MyServer - Client has been connected.
+[INFO ] 2020-11-17 11:53:32.848 [pool-2-thread-1] MyServer - Client sent a message.

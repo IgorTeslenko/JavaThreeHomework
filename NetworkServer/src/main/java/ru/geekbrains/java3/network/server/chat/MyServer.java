@@ -1,5 +1,7 @@
 package ru.geekbrains.java3.network.server.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.geekbrains.java3.network.clientserver.Command;
 import ru.geekbrains.java3.network.server.chat.handler.ClientHandler;
 
@@ -14,23 +16,26 @@ public class MyServer {
     private final ServerSocket serverSocket;
     private final List<ClientHandler> clients = new ArrayList<>();
 
+    private static final Logger logger = LogManager.getLogger(MyServer.class);
+
 
     public MyServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
     }
 
     public void start() throws IOException {
-        System.out.println("Server has been started.");
+        logger.info("Server has been started.");
         DBConnect.connect();
         try {
             while (true) {
                 waitAndProcessNewConnection();
             }
         } catch (IOException e) {
-            System.err.println("Failed to accept new connection.");
+            logger.error("Failed to accept new connection.");
             e.printStackTrace();
         } finally {
             serverSocket.close();
+            logger.info("Server has been closed.");
             DBConnect.disconnect();
         }
     }
@@ -39,7 +44,8 @@ public class MyServer {
         System.out.println("Awaiting for new connections...");
 
         Socket clientSocket = serverSocket.accept();
-        System.out.println("Client has been connected.");
+        logger.info("Client has been connected.");
+
         processClientConnection(clientSocket);
     }
 
@@ -54,6 +60,7 @@ public class MyServer {
                 continue;
             }
             client.sendMessage(command);
+            logger.info("Client sent a message.");
         }
     }
 
@@ -67,6 +74,7 @@ public class MyServer {
         clients.remove(handler);
         List<String> usernames = getAllUsernames();
         broadcastMessage(null, Command.updateUserListCommand(usernames));
+        logger.info("Client has been disconnected.");
     }
 
     private List<String> getAllUsernames() {
